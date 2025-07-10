@@ -1,0 +1,144 @@
+body {
+  margin: 0;
+  font-family: 'Roboto', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: #f5f5f5;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+/* Animazioni per le transizioni di pagina */
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* Stili personalizzati per i componenti MUI */
+.MuiButton-root {
+  border-radius: 8px;
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+
+.MuiButton-contained {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.MuiButton-contained:hover {
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+}
+
+.MuiPaper-rounded {
+  border-radius: 12px;
+}
+
+.MuiCard-root {
+  transition: all 0.3s ease;
+}
+
+.MuiCard-root:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+/* Stili per il dashboard */
+.dashboard-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px;
+  transition: all 0.3s ease;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-8px);
+  background-color: #f0f7ff;
+}
+
+.dashboard-icon {
+  font-size: 48px;
+  color: #1976d2;
+  margin-bottom: 16px;
+}
+
+/* Stili per le tabelle */
+.MuiTableRow-root {
+  transition: background-color 0.2s ease;
+}
+
+.MuiTableRow-root:hover {
+  background-color: rgba(25, 118, 210, 0.04);
+}
+
+/* Stili per i form */
+.form-container {
+  padding: 24px;
+  border-radius: 12px;
+  background-color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Stili per il footer */
+.footer {
+  margin-top: auto;
+  padding: 16px 0;
+  background-color: #f5f5f5;
+  text-align: center;
+  font-size: 14px;
+  color: #666;
+}
+
+/* Stili per la pagina di login */
+.login-paper {
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: linear-gradient(to right bottom, #ffffff, #f8f9fa);
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.login-title {
+  margin-bottom: 24px;
+  color: #1976d2;
+  font-weight: bold;
+}
+
+.login-button {
+  margin-top: 24px;
+  padding: 12px;
+  font-weight: bold;
+  border-radius: 8px;
+  background: linear-gradient(45deg, #1976d2, #2196f3);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  transition: all 0.3s ease;
+}
+
+.login-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(33, 150, 243, 0.4);
+}

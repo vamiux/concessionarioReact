@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestione Veicoli - Concessionario</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding-top: 20px;
+        }
+        .page-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .page-title {
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .btn-back {
+            margin-bottom: 20px;
+        }
+        .user-info {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-container">
+            <div class="user-info">
+                <span sec:authentication="name">Username</span>
+                <form th:action="@{/logout}" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-sm btn-outline-secondary">Logout</button>
+                </form>
+            </div>
+            
+            <a href="/" class="btn btn-outline-secondary btn-back">
+                <i class="fas fa-arrow-left"></i> Torna alla Dashboard
+            </a>
+            
+            <h1 class="page-title">Gestione Veicoli</h1>
+            
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVeicoloModal">
+                        <i class="fas fa-plus"></i> Nuovo Veicolo
+                    </button>
+                </div>
+                <div class="col-md-6 text-end">
+                    <button class="btn btn-outline-secondary" type="button" id="searchAdvancedBtn">
+                        <i class="fas fa-search"></i> Ricerca
+                    </button>
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Numero Telaio</th>
+                            <th>Marca</th>
+                            <th>Modello</th>
+                            <th>Anno Immatricolazione</th>
+                            <th>Chilometraggio</th>
+                            <th>Disponibile</th>
+                            <th>Configurazione</th>
+                            <th>Azioni</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="veicolo : ${veicoli}">
+                            <td th:text="${veicolo.numeroTelaio}"></td>
+                            <td th:text="${veicolo.marca}"></td>
+                            <td th:text="${veicolo.modello}"></td>
+                            <td th:text="${veicolo.annoImmatricolazione}"></td>
+                            <td th:text="${veicolo.chilometraggio}"></td>
+                            <td th:text="${veicolo.disponibile} ? 'Si' : 'No'"></td>
+                            <td th:text="${veicolo.configurazione != null ? veicolo.configurazione.nomeConfigurazione : ''}"></td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="btn btn-sm btn-warning modificaBtn" 
+                                            th:data-telaio="${veicolo.numeroTelaio}"
+                                            data-bs-toggle="modal" 
+                                            data-bs-target="#editVeicoloModal" 
+                                            title="Modifica">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        <!-- Se non ci sono veicoli -->
+                        <tr th:if="${#lists.isEmpty(veicoli)}">
+                            <td colspan="8" class="text-center">Nessun veicolo trovato</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal per aggiungere un nuovo veicolo -->
+    <div class="modal fade" id="addVeicoloModal" tabindex="-1" aria-labelledby="addVeicoloModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addVeicoloModalLabel">Nuovo Veicolo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="addVeicoloForm">
+                        <div class="mb-3">
+                            <label for="numeroTelaio" class="form-label">Numero Telaio</label>
+                            <input type="text" class="form-control" id="numeroTelaio" name="numeroTelaio" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="marca" class="form-label">Marca</label>
+                            <input type="text" class="form-control" id="marca" name="marca" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="modello" class="form-label">Modello</label>
+                            <input type="text" class="form-control" id="modello" name="modello" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="annoImmatricolazione" class="form-label">Anno Immatricolazione</label>
+                            <input type="number" class="form-control" id="annoImmatricolazione" name="annoImmatricolazione" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="chilometraggio" class="form-label">Chilometraggio</label>
+                            <input type="number" class="form-control" id="chilometraggio" name="chilometraggio" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="idConfigurazione" class="form-label">Configurazione</label>
+                            <select class="form-select" id="idConfigurazione" name="idConfigurazione" required>
+                                <option value="">Seleziona una configurazione</option>
+                                <option th:each="config : ${configurazioni}" 
+                                        th:value="${config.idConfigurazione}" 
+                                        th:text="${config.nomeConfigurazione}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="disponibile" class="form-label">Disponibile</label>
+                            <select class="form-select" id="disponibile" name="disponibile" required disabled>
+                                <option value="true" selected>Si</option>
+                            </select>
+                            <input type="hidden" name="disponibile" value="true">
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="saveVeicolo">Salva</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal per modificare un veicolo -->
+    <div class="modal fade" id="editVeicoloModal" tabindex="-1" aria-labelledby="editVeicoloModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editVeicoloModalLabel">Modifica Veicolo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="editVeicoloForm">
+                        <div class="mb-3">
+                            <label for="editNumeroTelaio" class="form-label">Numero Telaio</label>
+                            <input type="text" class="form-control" id="editNumeroTelaio" name="numeroTelaio" required readonly>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editMarca" class="form-label">Marca</label>
+                            <input type="text" class="form-control" id="editMarca" name="marca" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editModello" class="form-label">Modello</label>
+                            <input type="text" class="form-control" id="editModello" name="modello" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editAnnoImmatricolazione" class="form-label">Anno Immatricolazione</label>
+                            <input type="number" class="form-control" id="editAnnoImmatricolazione" name="annoImmatricolazione" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editChilometraggio" class="form-label">Chilometraggio</label>
+                            <input type="number" class="form-control" id="editChilometraggio" name="chilometraggio" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editIdConfigurazione" class="form-label">Configurazione</label>
+                            <select class="form-select" id="editIdConfigurazione" name="idConfigurazione" required>
+                                <option value="">Seleziona una configurazione</option>
+                                <option th:each="config : ${configurazioni}" 
+                                        th:value="${config.idConfigurazione}" 
+                                        th:text="${config.nomeConfigurazione}">
+                                </option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editDisponibile" class="form-label">Disponibile</label>
+                            <select class="form-select" id="editDisponibile" name="disponibile" required>
+                                <option value="true">Si</option>
+                                <option value="false">No</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                    <button type="button" class="btn btn-primary" id="updateVeicolo">Salva Modifiche</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal per la ricerca avanzata -->
+    <div class="modal fade" id="searchModal" tabindex="-1" aria-labelledby="searchModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="searchModalLabel">Ricerca Avanzata</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="searchForm" onsubmit="doSearch(); return false;">
+                        <div class="mb-3">
+                            <label for="searchNumeroTelaio" class="form-label">Numero Telaio</label>
+                            <input type="text" class="form-control" id="searchNumeroTelaio" name="numeroTelaio">
+                        </div>
+                        <div class="mb-3">
+                            <label for="searchMarca" class="form-label">Marca</label>
+                            <input type="text" class="form-control" id="searchMarca" name="marca">
+                        </div>
+                        <div class="mb-3">
+                            <label for="searchModello" class="form-label">Modello</label>
+                            <input type="text" class="form-control" id="searchModello" name="modello">
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                            <button type="submit" class="btn btn-primary">Cerca</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Gestione del pulsante di ricerca semplice
+            document.getElementById('searchAdvancedBtn').addEventListener('click', function() {
+                const searchModal = new bootstrap.Modal(document.getElementById('searchModal'));
+                searchModal.show();
+            });
+            
+            // Gestione del salvataggio di un nuovo veicolo
+            document.getElementById('saveVeicolo').addEventListener('click', function() {
+                const form = document.getElementById('addVeicoloForm');
+                if (form.checkValidity()) {
+                    const veicolo = {
+                        numeroTelaio: document.getElementById('numeroTelaio').value,
+                        marca: document.getElementById('marca').value,
+                        modello: document.getElementById('modello').value,
+                        annoImmatricolazione: parseInt(document.getElementById('annoImmatricolazione').value),
+                        chilometraggio: parseInt(document.getElementById('chilometraggio').value),
+                        idConfigurazione: parseInt(document.getElementById('idConfigurazione').value),
+                        disponibile: true,
+                    };
+                    
+                    fetch('/veicoli/api', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(veicolo)
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            return response.text().then(errorMessage => {
+                                alert('Errore durante il salvataggio del veicolo: ' + (errorMessage || 'Errore sconosciuto'));
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Errore:', error);
+                        alert('Errore durante il salvataggio del veicolo: ' + error.message);
+                    });
+                } else {
+                    form.reportValidity();
+                }
+            });
+            
+            // Gestione della modifica di un veicolo
+            document.querySelectorAll('.modificaBtn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const numeroTelaio = this.getAttribute('data-telaio');
+                    
+                    // Carica i dati del veicolo
+                    fetch(`/veicoli/api/${numeroTelaio}`)
+                        .then(response => response.json())
+                        .then(veicolo => {
+                            document.getElementById('editNumeroTelaio').value = veicolo.numeroTelaio;
+                            document.getElementById('editMarca').value = veicolo.marca;
+                            document.getElementById('editModello').value = veicolo.modello;
+                            document.getElementById('editAnnoImmatricolazione').value = veicolo.annoImmatricolazione;
+                            document.getElementById('editChilometraggio').value = veicolo.chilometraggio;
+                            document.getElementById('editDisponibile').value = veicolo.disponibile ? 'true' : 'false';
+                            if (veicolo.configurazione) {
+                                document.getElementById('editIdConfigurazione').value = veicolo.configurazione.idConfigurazione;
+                            }
+                        })
+                        .catch(error => console.error('Errore:', error));
+                });
+            });
+            
+            // Gestione dell'aggiornamento di un veicolo
+            document.getElementById('updateVeicolo').addEventListener('click', function() {
+                const form = document.getElementById('editVeicoloForm');
+                if (form.checkValidity()) {
+                    const veicolo = {
+                        numeroTelaio: document.getElementById('editNumeroTelaio').value,
+                        marca: document.getElementById('editMarca').value,
+                        modello: document.getElementById('editModello').value,
+                        annoImmatricolazione: parseInt(document.getElementById('editAnnoImmatricolazione').value),
+                        chilometraggio: parseInt(document.getElementById('editChilometraggio').value),
+                        disponibile: document.getElementById('editDisponibile').value === 'true',
+                        idConfigurazione: document.getElementById('editIdConfigurazione').value
+                    };
+                    
+                    fetch(`/veicoli/api/${veicolo.numeroTelaio}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(veicolo)
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            location.reload();
+                        } else {
+                            return response.text().then(errorMessage => {
+                                alert('Errore durante l\'aggiornamento del veicolo: ' + (errorMessage || 'Errore sconosciuto'));
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Errore:', error);
+                        alert('Errore durante l\'aggiornamento del veicolo: ' + error.message);
+                    });
+                } else {
+                    form.reportValidity();
+                }
+            });
+            
+            // Gestione della ricerca avanzata
+            function doSearch() {
+                const numeroTelaio = document.getElementById('searchNumeroTelaio').value.trim();
+                const marca = document.getElementById('searchMarca').value.trim();
+                const modello = document.getElementById('searchModello').value.trim();
+                
+                // Verifica che almeno un campo sia compilato
+                if (!numeroTelaio && !marca && !modello) {
+                    alert('Inserisci almeno un criterio di ricerca');
+                    return;
+                }
+                
+                let url = '/veicoli/search?';
+                if (numeroTelaio) url += `numeroTelaio=${numeroTelaio}&`;
+                if (marca) url += `marca=${marca}&`;
+                if (modello) url += `modello=${modello}&`;
+                
+                // Rimuovi l'ultimo & o ? se presente
+                url = url.replace(/[&?]$/, '');
+                
+                window.location.href = url;
+                
+                // Chiudi il modal
+                const searchModal = bootstrap.Modal.getInstance(document.getElementById('searchModal'));
+                if (searchModal) {
+                    searchModal.hide();
+                }
+            }
+            
+            // Rendi la funzione disponibile globalmente
+            window.doSearch = doSearch;
+        });
+    </script>
+</body>
+</html>
